@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAFINOOR Work Hours</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+html, body { height: 100%; margin: 0; font-family: Arial, sans-serif; }
+body { display: flex; justify-content: center; align-items: flex-start; background-size: cover; background-position: center; transition: background-image 1s ease-in-out; padding:20px; }
+.container { position: relative; z-index: 10; background-color: rgba(255,255,255,0.95); padding: 20px; border-radius: 10px; max-width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.3); overflow-x: auto; }
+.title-animate { font-weight: bold; font-size: 28px; text-align: center; animation: fadeSlideIn 1.5s ease-out, glowPulse 3s ease-in-out infinite alternate, gentleBounce 4s ease-in-out infinite; margin-bottom: 20px; }
+@keyframes fadeSlideIn { 0% { opacity:0; transform:translateY(-30px);} 100% {opacity:1; transform:translateY(0);} }
+@keyframes glowPulse { 0% {text-shadow:0 0 10px #00bcd4,0 0 20px #00bcd4;color:#00796b;} 50% {text-shadow:0 0 25px #26c6da,0 0 50px #26c6da;color:#004d40;} 100% {text-shadow:0 0 10px #00bcd4,0 0 20px #00bcd4;color:#00796b;} }
+@keyframes gentleBounce { 0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);} }
+table { font-size: 14px; background:#fff; min-width: 1200px; border-collapse: collapse;}
+th, td { text-align: center; vertical-align: middle; white-space: nowrap; padding:5px; }
+th { background-color:#343a40; color:#fff; }
+tfoot td { font-weight:bold; background-color:#e9ecef; }
+.facebook-btn { margin-top: 15px; }
+
+/* Sticky Date & Site columns */
+#workTable th:nth-child(1), #workTable th:nth-child(2),
+#workTable td:nth-child(1), #workTable td:nth-child(2) {
+    position: sticky;
+    left: 0;
+    background: #f8f9fa;
+    z-index: 5;
+}
+#workTable th:nth-child(2), #workTable td:nth-child(2){
+    left: 80px;
+    z-index: 5;
+}
+
+/* Responsive */
+@media(max-width: 768px){ .title-animate{font-size:24px;} .container{padding:15px;} table{font-size:12px;} }
+@media(max-width: 480px){ .title-animate{font-size:20px;} table{font-size:11px;} }
+</style>
+</head>
+<body>
+
+<audio id="brandSound" autoplay>
+  <source src="https://cdn.pixabay.com/download/audio/2021/09/07/audio_3e5c71b0f1.mp3?filename=epic-logo-intro-11284.mp3" type="audio/mpeg">
+</audio>
+
+<div class="container">
+    <h2 class="title-animate">RAFINOOR Work Hours</h2>
+
+    <!-- ✅ Add New Record Form -->
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">Add New Record</div>
+        <div class="card-body">
+            <form id="addForm" onsubmit="addRow(event)">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-2 col-6">
+                        <label>Date</label>
+                        <input type="date" id="date" class="form-control" required>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <label>Site Code</label>
+    <input type="text" id="site" class="form-control" placeholder="Enter site code" required>
+                    </div>
+                    <div class="col-md-1 col-6"><label>Start1</label><input type="text" id="st1" class="form-control" placeholder="HH:MM"></div>
+                    <div class="col-md-1 col-6"><label>Stop1</label><input type="text" id="sp1" class="form-control" placeholder="HH:MM"></div>
+                    <div class="col-md-1 col-6"><label>Start2</label><input type="text" id="st2" class="form-control" placeholder="HH:MM"></div>
+                    <div class="col-md-1 col-6"><label>Stop2</label><input type="text" id="sp2" class="form-control" placeholder="HH:MM"></div>
+                    <div class="col-md-1 col-6"><label>Start3</label><input type="text" id="st3" class="form-control" placeholder="HH:MM"></div>
+                    <div class="col-md-1 col-6"><label>Stop3</label><input type="text" id="sp3" class="form-control" placeholder="HH:MM"></div>
+                    <div class="col-md-1 col-6"><label>Start4</label><input type="text" id="st4" class="form-control" placeholder="HH:MM"></div>
+                    <div class="col-md-1 col-6"><label>Stop4</label><input type="text" id="sp4" class="form-control" placeholder="HH:MM"></div>
+                    <div class="col-md-1 col-6"><label>Start5</label><input type="text" id="st5" class="form-control" placeholder="HH:MM"></div>
+                    <div class="col-md-1 col-6"><label>Stop5</label><input type="text" id="sp5" class="form-control" placeholder="HH:MM"></div>
+                    <div class="col-md-2 col-6">
+                        <label>Operator</label>
+                        <input type="text" id="operator" class="form-control" placeholder="Operator">
+                    </div>
+                    <div class="col-md-1 col-6">
+                        <button type="submit" class="btn btn-success w-100">Add</button>
+                    </div>
+                         <!-- Copy Latest Record Button -->
+<div class="mb-3">
+    <button class="btn btn-info" onclick="copyLatestRecord()">Copy Latest Record</button>
+</div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search by Date or Operator Name..." onkeyup="searchTable()">
+
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped" id="workTable">
+            <thead>
+                <tr>
+                    <th style="width:80px;">Date</th>
+                    <th style="width:120px;">Site Code</th>
+                    <th>Start1</th><th>Stop1</th>
+                    <th>Start2</th><th>Stop2</th>
+                    <th>Start3</th><th>Stop3</th>
+                    <th>Start4</th><th>Stop4</th>
+                    <th>Start5</th><th>Stop5</th>
+                    <th>Total RH</th>
+                    <th>Operator</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="12" class="text-end">Grand Total:</td>
+                    <td id="grandTotal">0:00</td>
+                    <td colspan="2"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div id="dateTotals" class="mt-2"></div>
+
+    <div class="mt-3 d-flex gap-2 flex-wrap">
+        <button class="btn btn-primary" onclick="exportTableToExcel('workTable','work_hours')">Export to Excel</button>
+        <input type="file" id="fileInput" class="form-control" accept=".xls,.xlsx" style="max-width:200px;">
+        <button class="btn btn-success" onclick="importExcel()">Import Excel</button>
+        <input type="month" id="monthPicker" class="form-control" style="max-width:200px;">
+        <button class="btn btn-danger" onclick="deleteByMonth()">Delete Month</button>
+        <button class="btn btn-warning" onclick="exportMonthToExcel('workTable')">Export Month</button>
+    </div>
+
+    <div class="facebook-btn text-center mt-3">
+        <a href="https://web.facebook.com/RN.rafinoor/" target="_blank" class="btn btn-primary">Visit our Facebook</a>
+    </div>
+    
+</div>
+
+<script>
+// ===== Background =====
+let backgrounds=['https://source.unsplash.com/1920x1080/?nature,water','https://source.unsplash.com/1920x1080/?nature,forest','https://source.unsplash.com/1920x1080/?nature,mountain','https://source.unsplash.com/1920x1080/?nature,sky','https://source.unsplash.com/1920x1080/?nature,night'];
+let bgIndex=0; 
+function changeBackground(){document.body.style.backgroundImage=`url('${backgrounds[bgIndex]}')`; bgIndex=(bgIndex+1)%backgrounds.length;} 
+setInterval(changeBackground,5000); changeBackground();
+
+// ===== Table Functions =====
+function searchTable(){let input=document.getElementById("searchInput").value.toLowerCase(); document.querySelectorAll("#tableBody tr").forEach(row=>{row.style.display=[...row.cells].some(td=>td.innerText.toLowerCase().includes(input))?"":"none";});}
+
+function timeToMinutes(t){if(!t)return 0; let [h,m]=t.split(":").map(Number); return (isNaN(h)||isNaN(m))?0:h*60+m;}
+function calculateTotalRH(row){let cells=row.cells,total=0; [[2,3],[4,5],[6,7],[8,9],[10,11]].forEach(([s,e])=>{let start=timeToMinutes(cells[s].innerText.trim()); let stop=timeToMinutes(cells[e].innerText.trim()); if(stop>start) total+=stop-start;}); let h=Math.floor(total/60), m=total%60; cells[12].innerText=total>0?`${h}:${m<10?"0"+m:m}`:"0:00"; return total;}
+function updateGrandTotal(){let total=0; document.querySelectorAll("#tableBody tr").forEach(r=>total+=calculateTotalRH(r)); let h=Math.floor(total/60), m=total%60; document.getElementById("grandTotal").innerText=`${h}:${m<10?"0"+m:m}`;}
+function updateDateWiseTotal(){const totals={}; document.querySelectorAll("#tableBody tr").forEach(row=>{const date=row.cells[0].innerText.trim(); const total=calculateTotalRH(row); if(!totals[date]) totals[date]=0; totals[date]+=total;}); let dateTotalDiv=document.getElementById("dateTotals"); dateTotalDiv.innerHTML="<h5>Date-wise Total Hours:</h5>"; for(let date in totals){let h=Math.floor(totals[date]/60), m=totals[date]%60; dateTotalDiv.innerHTML+=`<p>${date} → ${h}:${m<10?"0"+m:m}</p>`;}}
+
+function updateTotals(){updateGrandTotal(); updateDateWiseTotal();}
+
+// ===== Storage =====
+function saveTable(){const rows=[]; document.querySelectorAll("#tableBody tr").forEach(r=>rows.push([...r.cells].slice(0,14).map(td=>td.innerText))); localStorage.setItem('workHoursTable',JSON.stringify(rows));}
+function loadTable(){const rows=JSON.parse(localStorage.getItem('workHoursTable')||'[]'); const tbody=document.getElementById("tableBody"); tbody.innerHTML=''; rows.forEach(rData=>addRowFromData(rData));}
+
+function addRowFromData(rData){let tr=document.createElement("tr"); tr.innerHTML=generateRowHTML(rData); document.getElementById("tableBody").appendChild(tr); calculateTotalRH(tr);}
+function generateRowHTML(rData){return `<td contenteditable="false">${rData[0]}</td><td contenteditable="false">${rData[1]}</td><td contenteditable="false">${rData[2]}</td><td contenteditable="false">${rData[3]}</td><td contenteditable="false">${rData[4]}</td><td contenteditable="false">${rData[5]}</td><td contenteditable="false">${rData[6]}</td><td contenteditable="false">${rData[7]}</td><td contenteditable="false">${rData[8]}</td><td contenteditable="false">${rData[9]}</td><td contenteditable="false">${rData[10]}</td><td contenteditable="false">${rData[11]}</td><td>${rData[12]}</td><td contenteditable="false">${rData[13]}</td><td><button class="btn btn-warning btn-sm me-1" onclick="toggleEdit(this)">Edit</button><button class="btn btn-danger btn-sm me-1" onclick="deleteRow(this)">Delete</button><button class="btn btn-info btn-sm" onclick="copyRowText(this)">Copy</button></td>`;}
+
+function toggleEdit(btn){let tr=btn.closest("tr"); if(btn.innerText==="Edit"){[...tr.cells].forEach((td,i)=>{if(i>=0 && i<=11||i===13) td.contentEditable="true";}); btn.innerText="Save"; tr.style.backgroundColor="#fff3cd";} else {[...tr.cells].forEach((td,i)=>{if(i>=0 && i<=11||i===13) td.contentEditable="false";}); btn.innerText="Edit"; tr.style.backgroundColor=""; calculateTotalRH(tr); updateTotals(); saveTable();}}
+function deleteRow(btn){btn.closest("tr").remove(); updateTotals(); saveTable();}
+function addRow(e){e.preventDefault(); const rData=[date.value, site.value, st1.value, sp1.value, st2.value, sp2.value, st3.value, sp3.value, st4.value, sp4.value, st5.value, sp5.value,'',operator.value]; addRowFromData(rData); updateTotals(); saveTable(); addForm.reset();}
+
+// Copy
+function copyRowText(btn){let row=btn.closest("tr"); let date=row.cells[0].innerText; let site=row.cells[1].innerText; let operator=row.cells[13].innerText; let text=`${date}\nOperator: ${operator}\nSite: ${site}\n`; for(let i=2;i<=11;i+=2){let s=row.cells[i].innerText.trim(); let e=row.cells[i+1].innerText.trim(); if(s||e) text+=`PG start:${s}\nPG stop:${e}\n\n`; } text+=`Total PG run: ${row.cells[12].innerText}`; navigator.clipboard.writeText(text).then(()=>alert("Copied!")).catch(()=>alert("Copy failed!"));}
+
+// Export
+function exportTableToExcel(tableID,filename=''){ let dataType='application/vnd.ms-excel'; let table=document.getElementById(tableID); let tableHTML=table.outerHTML.replace(/ /g,'%20'); filename=filename?filename+'.xls':'excel_data.xls'; let dl=document.createElement("a"); dl.href='data:'+dataType+', '+tableHTML; dl.download=filename; dl.click(); }
+
+// Delete by month
+function deleteByMonth(){let month=document.getElementById("monthPicker").value;if(!month){alert("Please select a month!"); return;} let rows=document.querySelectorAll("#tableBody tr"); let count=0; rows.forEach(r=>{let d=r.cells[0].innerText.trim(); if(d.startsWith(month)) count++;}); if(count===0){alert("No data found for "+month); return;} if(!confirm(count+" rows will be deleted. Continue?")) return; rows.forEach(r=>{let d=r.cells[0].innerText.trim(); if(d.startsWith(month)) r.remove();}); updateTotals(); saveTable(); alert("Deleted "+count+" rows for "+month);}
+
+// Import Excel
+function importExcel(){let file=document.getElementById("fileInput").files[0]; if(!file){alert("Please select a file!"); return;} let reader=new FileReader(); reader.onload=function(e){let data=e.target.result; let parser=new DOMParser(); let doc=parser.parseFromString(data,"text/html"); let rows=doc.querySelectorAll("tr"); rows.forEach((row,i)=>{if(i===0) return; let cells=row.querySelectorAll("td"); if(cells.length<14) return; let rData=[]; for(let j=0;j<14;j++) rData.push(cells[j].innerText.trim()); addRowFromData(rData);}); updateTotals(); saveTable(); alert("Data Imported Successfully!"); }; reader.readAsText(file);}
+
+// Export Month
+function exportMonthToExcel(tableID){let month=document.getElementById("monthPicker").value; if(!month){alert("Select month!"); return;} let table=document.getElementById(tableID); let rows=table.querySelectorAll("tbody tr"); let tempTable=document.createElement("table"); tempTable.innerHTML=table.querySelector("thead").outerHTML; rows.forEach(r=>{if(r.cells[0].innerText.startsWith(month)) tempTable.appendChild(r.cloneNode(true));}); exportTableToExcelHTML(tempTable,"month_"+month); }
+function exportTableToExcelHTML(table,filename=''){ let dataType='application/vnd.ms-excel'; let tableHTML=table.outerHTML.replace(/ /g,'%20'); filename=filename?filename+'.xls':'excel_data.xls'; let dl=document.createElement("a"); dl.href='data:'+dataType+', '+tableHTML; dl.download=filename; dl.click(); }
+
+// Initial Load
+loadTable(); updateTotals();
+function copyRowText(btn){
+    let row = btn.closest("tr");
+    let date = row.cells[0].innerText;
+    let site = row.cells[1].innerText;
+    let operator = row.cells[13].innerText;
+
+    let text = `${date}\nOperator: ${operator}\nSite: ${site}\n\n`;
+
+    for(let i=2; i<=11; i+=2){
+        let start = row.cells[i].innerText.trim();
+        let stop = row.cells[i+1].innerText.trim();
+        if(start || stop){
+            text += `PG start time:${start}\nPG stop time:${stop}\n\n`;
+        }
+    }
+
+    text += `Total PG run: ${row.cells[12].innerText}`;
+
+    navigator.clipboard.writeText(text)
+        .then(()=>alert("Copied! ✅"))
+        .catch(()=>alert("Copy failed ❌"));
+}
+
+function copyLatestRecord(){
+    let rows = document.querySelectorAll("#tableBody tr");
+    if(rows.length === 0){
+        alert("No record to copy!");
+        return;
+    }
+    let row = rows[rows.length - 1]; // last row
+    let date = row.cells[0].innerText;
+    let site = row.cells[1].innerText;
+    let operator = row.cells[13].innerText;
+
+    let text = `${date}\nOperator: ${operator}\nSite: ${site}\n\n`;
+
+    for(let i=2; i<=11; i+=2){
+        let start = row.cells[i].innerText.trim();
+        let stop = row.cells[i+1].innerText.trim();
+        if(start || stop){
+            text += `PG start time:${start}\nPG stop time:${stop}\n\n`;
+        }
+    }
+
+    text += `Total PG run: ${row.cells[12].innerText}`;
+
+    navigator.clipboard.writeText(text)
+        .then(()=>alert("Copied! ✅"))
+        .catch(()=>alert("Copy failed ❌"));
+}
+</script>
+</body>
+</html>
